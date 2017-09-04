@@ -17,27 +17,10 @@ trlabel<-tr$class
 
 tr<-subset(tr,select = -c(class))
 te<-te
-# train_listing<-read.table("./stacking/middlepredicting/train_listingid.csv",sep=",")
-# test_listing<-read.table("./stacking/middlepredicting/test_listingid.csv",sep=",")
-# tr<-data.table(listing_id=train_listing,tr)
-# te<-data.table(listing_id=test_listing,te)
-# data<-rbind(tr,te)
-# colnames(data)[1]<-"listing_id"
-
-# listingimgtime<-read.csv("./data/listing_image_time.csv",sep=",")
-# colnames(listingimgtime)[1]<-"listing_id"
-# data<-merge(data,listingimgtime,by="listing_id",all.x=TRUE,sort=FALSE)
-# trdata<-data[1:49352,]
-# te<-data[49353:124011,]
-# gc()
-
 
 print("defining fit control")
 fitControl <- trainControl(
   method = "none"
-  # classProbs = TRUE,
-  # verboseIter = FALSE,
-  # summaryFunction=mnLogLoss
 )
 
 print("defining classifierfunction")
@@ -266,13 +249,13 @@ fitting<-function(iscv=TRUE,trdat,trlab,trclas,tedat){
     trpred_lgbm<-matrix(nrow = nrow(dtrgbm), ncol = 3)
     trpred_rf<-matrix(nrow = nrow(trdat), ncol = 3)
     trpred_svm<-matrix(nrow = nrow(trdat), ncol = 3)
-    # trpred_logist<-matrix(nrow = nrow(trdat), ncol = 3)
-    #trpred_lda<-matrix(nrow = nrow(trdat), ncol = 3)
+    trpred_logist<-matrix(nrow = nrow(trdat), ncol = 3)
+    trpred_lda<-matrix(nrow = nrow(trdat), ncol = 3)
     trpred_glmnet<-matrix(nrow = nrow(trdat), ncol = 3)
     trpred_gbm<-matrix(nrow = nrow(trdat), ncol = 3)
-    # trpred_c50<-matrix(nrow = nrow(trdat), ncol = 3)
+    trpred_c50<-matrix(nrow = nrow(trdat), ncol = 3)
     trpred_lgbmdt<-matrix(nrow = nrow(dtrgbm), ncol = 3)
-    # trpred_lgbmr<-matrix(nrow = nrow(dtrgbm), ncol = 1)
+    trpred_lgbmr<-matrix(nrow = nrow(dtrgbm), ncol = 1)
     trpred_xgbdt<-matrix(nrow = nrow(dtrxgb), ncol = 3)
     trpred_adabag<-matrix(nrow = nrow(trdat), ncol = 3)
     
@@ -280,13 +263,13 @@ fitting<-function(iscv=TRUE,trdat,trlab,trclas,tedat){
     tepred_lgbm<-matrix(0,nrow = nrow(dtegbm), ncol = 3)
     tepred_rf<-matrix(0,nrow = nrow(tedat), ncol = 3)
     tepred_svm<-matrix(nrow = nrow(tedat), ncol = 3)
-    # tepred_logist<-matrix(0,nrow = nrow(tedat), ncol = 3)
-    #tepred_lda<-matrix(nrow = nrow(tedat), ncol = 3)
+    tepred_logist<-matrix(0,nrow = nrow(tedat), ncol = 3)
+    tepred_lda<-matrix(nrow = nrow(tedat), ncol = 3)
     tepred_glmnet<-matrix(nrow = nrow(tedat), ncol = 3)
     tepred_gbm<-matrix(0,nrow = nrow(tedat), ncol = 3)
-    # tepred_c50<-matrix(0,nrow = nrow(tedat), ncol = 3)
+    tepred_c50<-matrix(0,nrow = nrow(tedat), ncol = 3)
     tepred_lgbmdt<-matrix(0,nrow = nrow(dtegbm), ncol = 3)
-    # tepred_lgbmr<-matrix(nrow = nrow(dtegbm), ncol = 1)
+    tepred_lgbmr<-matrix(nrow = nrow(dtegbm), ncol = 1)
     tepred_xgbdt<-matrix(0,nrow = nrow(dtexgb), ncol = 3)
     tepred_adabag<-matrix(0,nrow = nrow(tedat), ncol = 3)
     
@@ -303,68 +286,68 @@ fitting<-function(iscv=TRUE,trdat,trlab,trclas,tedat){
       traindata<-trdat[foldidx,]
       preddata<-trdat[restidx,]
       
-      # print("fitting xgboost")
-      # xgb<-fxgb(dtrxgb[foldidx,])
-      # trpred_xgb[restidx,]<-t(matrix(predict(xgb, dtrxgb[restidx,]),
-      #                                nrow = 3,ncol = length(restidx)))
-      # tepred_xgb <-tepred_xgb+t(matrix(predict(xgb, dtexgb),
-      #                                  nrow = 3,ncol = nrow(dtexgb)))
-      # gc()
-      # print("fitting lightgbm")
-      # lgbm<-flgbm(lightgbm::slice(dtrgbm,foldidx))
-      # trpred_lgbm[restidx,]<-t(matrix(predict(lgbm, trspar[restidx,]),
-      #                                 nrow = 3,ncol = length(restidx)))
-      # tepred_lgbm<-tepred_lgbm+t(matrix(predict(lgbm, tespar),
-      #                                   nrow = 3,ncol = nrow(dtexgb)))
-      # gc()
-      # print("fitting rf")
-      # rfFit<-frfFit(class,traindata)
-      # trpred_rf[restidx,]<-as.matrix(predict(rfFit, preddata,type = "prob"))
-      # tepred_rf<-tepred_rf+as.matrix(predict(rfFit, tedat,type = "prob"))
+      print("fitting xgboost")
+      xgb<-fxgb(dtrxgb[foldidx,])
+      trpred_xgb[restidx,]<-t(matrix(predict(xgb, dtrxgb[restidx,]),
+                                     nrow = 3,ncol = length(restidx)))
+      tepred_xgb <-tepred_xgb+t(matrix(predict(xgb, dtexgb),
+                                       nrow = 3,ncol = nrow(dtexgb)))
+      gc()
+      print("fitting lightgbm")
+      lgbm<-flgbm(lightgbm::slice(dtrgbm,foldidx))
+      trpred_lgbm[restidx,]<-t(matrix(predict(lgbm, trspar[restidx,]),
+                                      nrow = 3,ncol = length(restidx)))
+      tepred_lgbm<-tepred_lgbm+t(matrix(predict(lgbm, tespar),
+                                        nrow = 3,ncol = nrow(dtexgb)))
+      gc()
+      print("fitting rf")
+      rfFit<-frfFit(class,traindata)
+      trpred_rf[restidx,]<-as.matrix(predict(rfFit, preddata,type = "prob"))
+      tepred_rf<-tepred_rf+as.matrix(predict(rfFit, tedat,type = "prob"))
       gc()
       print("fitting svm")
       svmFit<-fsvmFit(class,traindata)
       trpred_svm[restidx,]<-as.matrix(predict(svmFit, preddata,type = "prob"))
       tepred_svm<-tepred_svm+as.matrix(predict(svmFit, tedat,type = "prob"))
-      # gc()
-      # print("fitting logistic")
-      # logistFit<-flogisticFit(class,traindata)
-      # trpred_logist[restidx,]<-as.matrix(predict(logistFit, preddata,type = "prob"))
-      # tepred_logist<-tepred_logist+as.matrix(predict(logistFit, tedat,type = "prob"))
-      # gc()
-      # print("fitting lda")
-      # ldaFit<-fldaFit(class, traindata)
-      # trpred_lda[restidx,]<-as.matrix(predict(ldaFit, preddata,type = "prob"))
+      gc()
+      print("fitting logistic")
+      logistFit<-flogisticFit(class,traindata)
+      trpred_logist[restidx,]<-as.matrix(predict(logistFit, preddata,type = "prob"))
+      tepred_logist<-tepred_logist+as.matrix(predict(logistFit, tedat,type = "prob"))
+      gc()
+      print("fitting lda")
+      ldaFit<-fldaFit(class, traindata)
+      trpred_lda[restidx,]<-as.matrix(predict(ldaFit, preddata,type = "prob"))
       gc()
       print("fitting glmnet")
       glmnetFit<-fglmnetFit(class, traindata)
       trpred_glmnet[restidx,]<-as.matrix(predict(glmnetFit, preddata,type = "prob"))
       tepred_glmnet<-tepred_glmnet+as.matrix(predict(glmnetFit, tedat,type = "prob"))
-      # gc()
-      # print("fitting gbm")
-      # gbmFit<-fgbmFit(class,traindata)
-      # trpred_gbm[restidx,]<-as.matrix(predict(gbmFit, preddata,type = "prob"))
-      # tepred_gbm<-tepred_gbm+as.matrix(predict(gbmFit, tedat,type = "prob"))
-      # gc()
-      # print("fitting c50")
-      # c50Fit<-fc50Fit(class,traindata)
-      # trpred_c50[restidx,]<-as.matrix(predict(c50Fit, preddata,type = "prob"))
-      # tepred_c50<-tepred_c50+as.matrix(predict(c50Fit, tedat,type = "prob"))
-      # gc()
+      gc()
+      print("fitting gbm")
+      gbmFit<-fgbmFit(class,traindata)
+      trpred_gbm[restidx,]<-as.matrix(predict(gbmFit, preddata,type = "prob"))
+      tepred_gbm<-tepred_gbm+as.matrix(predict(gbmFit, tedat,type = "prob"))
+      gc()
+      print("fitting c50")
+      c50Fit<-fc50Fit(class,traindata)
+      trpred_c50[restidx,]<-as.matrix(predict(c50Fit, preddata,type = "prob"))
+      tepred_c50<-tepred_c50+as.matrix(predict(c50Fit, tedat,type = "prob"))
+      gc()
 
-      # print("fitting lightgbmdt")
-      # lgbmdt<-flgbmdt(lightgbm::slice(dtrgbm,foldidx))
-      # trpred_lgbmdt[restidx,]<-t(matrix(predict(lgbmdt, trspar[restidx,]),
-      #                                   nrow = 3,ncol = length(restidx)))
-      # tepred_lgbmdt<-tepred_lgbmdt+t(matrix(predict(lgbmdt, tespar),
-      #                                       nrow = 3,ncol = nrow(dtegbm)))
-      
-      # print("fitting lightgbmr")
-      # lgbmr<-flgbmr(lightgbm::slice(dtrgbm,foldidx))
-      # trpred_lgbmr[restidx,]<-t(matrix(predict(lgbmr, trspar[restidx,]),
-      #                                   nrow = 1,ncol = length(restidx)))
-      # tepred_lgbmr<-tepred_lgbmr+t(matrix(predict(lgbmr, tespar),
-      #                                       nrow = 1,ncol = nrow(dtegbm)))
+      print("fitting lightgbmdt")
+      lgbmdt<-flgbmdt(lightgbm::slice(dtrgbm,foldidx))
+      trpred_lgbmdt[restidx,]<-t(matrix(predict(lgbmdt, trspar[restidx,]),
+                                        nrow = 3,ncol = length(restidx)))
+      tepred_lgbmdt<-tepred_lgbmdt+t(matrix(predict(lgbmdt, tespar),
+                                            nrow = 3,ncol = nrow(dtegbm)))
+
+      print("fitting lightgbmr")
+      lgbmr<-flgbmr(lightgbm::slice(dtrgbm,foldidx))
+      trpred_lgbmr[restidx,]<-t(matrix(predict(lgbmr, trspar[restidx,]),
+                                        nrow = 1,ncol = length(restidx)))
+      tepred_lgbmr<-tepred_lgbmr+t(matrix(predict(lgbmr, tespar),
+                                            nrow = 1,ncol = nrow(dtegbm)))
       gc()
       print("fitting xgbdt")
       xgbdt<-fxgbdt(dtrxgb[foldidx,])
@@ -372,58 +355,62 @@ fitting<-function(iscv=TRUE,trdat,trlab,trclas,tedat){
                                        nrow = 3,ncol = length(restidx)))
       tepred_xgbdt <-tepred_xgbdt+t(matrix(predict(xgbdt, dtexgb),
                                            nrow = 3,ncol = nrow(dtexgb)))
-      # gc()
-      # print("fitting adabag")
-      # adabagFit<-fadabagFit(class,traindata)
-      # trpred_adabag[restidx,]<-as.matrix(predict(adabagFit, preddata,type = "prob"))
-      # tepred_adabag<-tepred_adabag+as.matrix(predict(adabagFit, tedat,type = "prob"))
+      gc()
+      print("fitting adabag")
+      adabagFit<-fadabagFit(class,traindata)
+      trpred_adabag[restidx,]<-as.matrix(predict(adabagFit, preddata,type = "prob"))
+      tepred_adabag<-tepred_adabag+as.matrix(predict(adabagFit, tedat,type = "prob"))
       
     }
     print("saving stage1 train prediction")
     
-    # write.csv(trpred_xgb,"./stacking/middlepredicting/stage1_tr_xgb.csv",sep = ",",col.names = FALSE,row.names = FALSE)
-    # write.csv(trpred_lgbm,"./stacking/middlepredicting/stage1_tr_lgbm.csv",sep = ",",col.names = FALSE,row.names = FALSE)
-    # write.csv(trpred_rf,"./stacking/middlepredicting/stage1_tr_rf.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(trpred_svm,"./stacking/middlepredicting/stage1_tr_svm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_logist,"./stacking/middlepredicting/saved/stage1_te_logist.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(trpred_glmnet,"./stacking/middlepredicting/stage1_tr_glmnet.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(trpred_gbm,"./stacking/middlepredicting/stage1_tr_gbm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(trpred_c50,"./stacking/middlepredicting/stage1_tr_c50.csv",sep = ",",col.names = FALSE,row.names = FALSE)
-    # write.csv(trpred_lgbmdt,"./stacking/middlepredicting/stage1_tr_lgbmdt.csv",sep = ",",col.names = FALSE,row.names = FALSE)
+    write.csv(trpred_xgb,"./data/stacking/stage1_tr_xgb.csv",sep = ",",col.names = FALSE,row.names = FALSE)
+    write.csv(trpred_lgbm,"./data/stacking/stage1_tr_lgbm.csv",sep = ",",col.names = FALSE,row.names = FALSE)
+    write.csv(trpred_rf,"./data/stacking/stage1_tr_rf.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(trpred_svm,"./data/stacking/stage1_tr_svm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_logist,"./data/stacking/stage1_te_logist.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(trpred_glmnet,"./data/stacking/stage1_tr_glmnet.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(trpred_gbm,"./data/stacking/stage1_tr_gbm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(trpred_c50,"./data/stacking/stage1_tr_c50.csv",sep = ",",col.names = FALSE,row.names = FALSE)
+    write.csv(trpred_lgbmdt,"./data/stacking/stage1_tr_lgbmdt.csv",sep = ",",col.names = FALSE,row.names = FALSE)
     
     
     stage1_tr_pred<-cbind(
-                          # trpred_xgb
-                          # ,trpred_lgbm
-                          # ,trpred_rf
-                          # trpred_logist,trpred_gbm,trpred_c50,
-                          # ,trpred_gbm
-                          # ,trpred_lgbmdt
-                          # ,trpred_lgbmr
-                          trpred_xgbdt
+                          trpred_xgb
+                          ,trpred_lgbm
+                          ,trpred_rf
+                          ,trpred_logist
+                          ,trpred_gbm
+                          ,trpred_c50
+                          ,trpred_gbm
+                          ,trpred_lgbmdt
+                          ,trpred_lgbmr
+                          ,trpred_xgbdt
                           ,trpred_svm
                           ,trpred_glmnet
-                          # ,trpred_adabag
+                          ,trpred_adabag
                           )
 
     stage1_te_pred<-cbind(
-                          # tepred_xgb/5.0
-                          # ,tepred_lgbm/5.0
-                          # ,tepred_rf/5.0
-                          # tepred_logist/5.0,tepred_gbm/5.0,tepred_c50/5.0,
-                          # ,tepred_gbm/5.0
-                          # ,tepred_lgbmdt/5.0
-                          # ,tepred_lgbmr/5.0
-                          tepred_xgbdt/5.0
+                          trpred_xgb/5.0
+                          ,trpred_lgbm/5.0
+                          ,trpred_rf/5.0
+                          ,trpred_logist/5.0
+                          ,trpred_gbm/5.0
+                          ,trpred_c50/5.0
+                          ,trpred_gbm/5.0
+                          ,trpred_lgbmdt/5.0
+                          ,trpred_lgbmr/5.0
+                          ,trpred_xgbdt/5.0
                           ,trpred_svm/5.0
                           ,trpred_glmnet/5.0
-                          # ,tepred_adabag/5.0
+                          ,trpred_adabag/5.0
                           )
-    write.table(stage1_tr_pred,"./stacking/middlepredicting/saved/stage1_trpred12.csv",sep = ",",row.names = FALSE)
-    write.table(stage1_te_pred,"./stacking/middlepredicting/saved/stage1_tepred12.csv",sep = ",",row.names = FALSE)
-    # remove(trpred_xgb,tr_pred_lgbm,trpred_rf,trpred_svm,
-    #        trpred_logist,trpred_lda,trpred_glmnet,trpred_gbm)
-    # gc()
+    write.table(stage1_tr_pred,"./data/stacking/stage1_trpred12.csv",sep = ",",row.names = FALSE)
+    write.table(stage1_te_pred,"./data/stacking/stage1_tepred12.csv",sep = ",",row.names = FALSE)
+    remove(trpred_xgb,tr_pred_lgbm,trpred_rf,trpred_svm,
+           trpred_logist,trpred_lda,trpred_glmnet,trpred_gbm)
+    gc()
     return(list("tr"=stage1_tr_pred,"te"=stage1_te_pred))
   }
   else{
@@ -432,69 +419,68 @@ fitting<-function(iscv=TRUE,trdat,trlab,trclas,tedat){
     traindata<-trdat
     preddata<-tedat
     
-    # print("fitting xgboost")
-    # 
-    # xgb<-fxgb(dtrxgb)
-    # tepred_xgb<-t(matrix(predict(xgb, dtexgb),
-    #                              ncol = 3,nrow = nrow(preddata)))
-    # gc()
-    # print("fiitting lightgbm")
-    # lgbm<-flgbm(dtrgbm)
-    # tepred_lgbm<-t(matrix(predict(lgbm, tespar),
-    #                             ncol = 3, nrow = nrow(preddata)))
-    # gc()
-    # print("fitting rf")
-    # rfFit<-frfFit(class,traindata)
-    # tepred_rf<-as.matrix(predict(rfFit, preddata,type = "prob"))
-    # gc()
-    # print("fitting svm")
-    # svmFit<-fsvmFit(class,traindata)
-    # tepred_svm<-as.matrix(predict(svmFit, preddata,type = "prob"))
-    # gc()
-    # print("fitting logistic")
-    # logistFit<-flogisticFit(class,traindata)
-    # tepred_logist<-as.matrix(predict(logistFit, preddata,type = "prob"))
-    # gc()
-    # print("fitting lda")
-    # ldaFit<-fldaFit(class, traindata)
-    # tepred_lda<-as.matrix(predict(ldaFit, preddata,type = "prob"))
-    # gc()
-    # print("fitting glmnet")
-    # glmnetFit<-fglmnetFit(class, traindata)
-    # tepred_glmnet<-as.matrix(predict(glmnetFit, preddata,type = "prob"))
-    # print("fitting gbm")
-    # gbmFit<-fgbmFit(class,traindata)
-    # tepred_gbm<-as.matrix(predict(gbmFit, preddata,type = "prob"))
-    # gc()
-    # print("saving stage1 test prediction")
+    print("fitting xgboost")
+
+    xgb<-fxgb(dtrxgb)
+    tepred_xgb<-t(matrix(predict(xgb, dtexgb),
+                                 ncol = 3,nrow = nrow(preddata)))
+    gc()
+    print("fiitting lightgbm")
+    lgbm<-flgbm(dtrgbm)
+    tepred_lgbm<-t(matrix(predict(lgbm, tespar),
+                                ncol = 3, nrow = nrow(preddata)))
+    gc()
+    print("fitting rf")
+    rfFit<-frfFit(class,traindata)
+    tepred_rf<-as.matrix(predict(rfFit, preddata,type = "prob"))
+    gc()
+    print("fitting svm")
+    svmFit<-fsvmFit(class,traindata)
+    tepred_svm<-as.matrix(predict(svmFit, preddata,type = "prob"))
+    gc()
+    print("fitting logistic")
+    logistFit<-flogisticFit(class,traindata)
+    tepred_logist<-as.matrix(predict(logistFit, preddata,type = "prob"))
+    gc()
+    print("fitting lda")
+    ldaFit<-fldaFit(class, traindata)
+    tepred_lda<-as.matrix(predict(ldaFit, preddata,type = "prob"))
+    gc()
+    print("fitting glmnet")
+    glmnetFit<-fglmnetFit(class, traindata)
+    tepred_glmnet<-as.matrix(predict(glmnetFit, preddata,type = "prob"))
+    print("fitting gbm")
+    gbmFit<-fgbmFit(class,traindata)
+    tepred_gbm<-as.matrix(predict(gbmFit, preddata,type = "prob"))
+    gc()
+    print("saving stage1 test prediction")
     print("fitting lgbmdt")
     lgbmdt<-flgbmdt(dtrgbm)
     tepred_lgbmdt<-t(matrix(predict(lgbmdt, tespar),
                             nrow = 3,ncol = nrow(preddata)))
     gc()
-    #write.csv(tepred_xgb,"./stacking/middlepredicting/stage1_te_xgb.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    #write.csv(tepred_lgbm,"./stacking/middlepredicting/stage1_te_lgbm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_rf,"./stacking/middlepredicting/stage1_te_rf.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_svm,"./stacking/middlepredicting/stage1_te_svm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_logist,"./stacking/middlepredicting/stage1_te_logist.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_lda,"./stacking/middlepredicting/stage1__te_lda.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_glmnet,"./stacking/middlepredicting/stage1_te_glmnet.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    # write.csv(tepred_gbm,"./stacking/middlepredicting/stage1_te_gbm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
-    write.csv(tepred_lgbmdt,"./stacking/middlepredicting/stage1_te_lgbmdt.csv",sep = ",",col.names = FALSE,row.names = FALSE)
-    # stage1_te_pred<-cbind(tepred_xgb,tepred_lgbm,tepred_rf,
-    #                       tepred_svm,tepred_logist,tepred_lda,tepred_glmnet,tepred_gbm)
-    # # remove(trpred_xgb,tr_pred_lgbm,trpred_rf,trpred_svm,
-    # #        trpred_logist,trpred_lda,trpred_glmnet,trpred_gbm)
-    # gc()
-    #return(stage1_te_pred)
+    write.csv(tepred_xgb,"./data/stacking/stage1_te_xgb.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_lgbm,"./data/stacking/stage1_te_lgbm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_rf,"./data/stacking/stage1_te_rf.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_svm,"./data/stacking/stage1_te_svm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_logist,"./data/stacking/stage1_te_logist.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_lda,"./data/stacking/stage1__te_lda.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_glmnet,"./data/stacking/stage1_te_glmnet.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_gbm,"./data/stacking/stage1_te_gbm.csv",sep = ",",col.names = c("low","middle","high"),row.names = FALSE)
+    write.csv(tepred_lgbmdt,"./data/stacking/stage1_te_lgbmdt.csv",sep = ",",col.names = FALSE,row.names = FALSE)
+    stage1_te_pred<-cbind(tepred_xgb,tepred_lgbm,tepred_rf,
+                          tepred_svm,tepred_logist,tepred_lda,tepred_glmnet,tepred_gbm)
+    remove(trpred_xgb,tr_pred_lgbm,trpred_rf,trpred_svm,
+           trpred_logist,trpred_lda,trpred_glmnet,trpred_gbm)
+    gc()
+    return(stage1_te_pred)
   }
 }
 
 
-#trainpred<-fitting(iscv=TRUE,trdat=trdata,trlab=trlabel,trclas=trclass,tedat=te)
 telist<-fitting(iscv=TRUE,trdat=trdata,trlab=trlabel,trclas=trclass,tedat=te)
-#write.table(trainpred,"./stacking/middlepredicting/stage1_trpred.csv",sep = ",",row.names = FALSE)
-#write.table(testpred,"./stacking/middlepredicting/stage1_tepred.csv",sep = ",",row.names = FALSE)
+write.table(telist$tr,"./data/stacking/stage1_trpred.csv",sep = ",",row.names = FALSE)
+write.table(telist$te,"./data/stacking/stage1_tepred.csv",sep = ",",row.names = FALSE)
 
 
 

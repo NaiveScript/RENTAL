@@ -547,7 +547,7 @@ for(fold in cvFolds){
 sPred<-sPred/(cnt-1)
 #sPreds <- as.data.table(t(matrix(predict(xgb2, dtest), nrow=3, ncol=nrow(dtest))))
 colnames(sPred) <- class$interest_level
-fwrite(data.table(listing_id=listing_id_test, sPred[,list(high,medium,low)]), "./subfile/submission.csv")
+fwrite(data.table(listing_id=listing_id_test, sPred[,list(high,medium,low)]), "./subfile/submission.csv")  # submissiongbm.csv 
 
 # importanceraw<-xgb.importance(feature_names = colnames(dtrain),xgb2)
 # xgb.plot.importance(importance_matrix = importanceraw[1:50])
@@ -555,6 +555,6 @@ fwrite(data.table(listing_id=listing_id_test, sPred[,list(high,medium,low)]), ".
 # selectfeatures<-subset(ts1,select = top60)
 # write.table(selectfeatures,"./stacking/middlepredicting/sfeatrues.csv",sep = ",",col.names = FALSE,row.names = FALSE)
 
-sPreds <- as.data.table(t(matrix(predict(xgb2, dtest), nrow=3, ncol=nrow(dtest))))
-colnames(sPreds) <- class$interest_level
-fwrite(data.table(listing_id=listing_id_test, sPreds[,list(high,medium,low)]), "./subfile/submission.csv") # 0.51272
+# sPreds <- as.data.table(t(matrix(predict(xgb2, dtest), nrow=3, ncol=nrow(dtest))))
+# colnames(sPreds) <- class$interest_level
+# fwrite(data.table(listing_id=listing_id_test, sPreds[,list(high,medium,low)]), "./subfile/submission.csv") # 0.51272
